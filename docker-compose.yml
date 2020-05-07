@@ -1,29 +1,54 @@
 version: '3.7'
 services:
+  nginx-service:
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3050:80'                         # localhost:3050
+  
   postgres:
     image: 'postgres:latest'
     environment: 
       - POSTGRES_PASSWORD=postgres_password
   redis: 
     image: 'redis:latest'
-  server:
-    # restart: 'no'                     # never attempt to restart this container if it stops or crashes
-    # restart: on-failure               # if this container stops with an error code will attempt to restart it
-    # restart: always                   # if this container stops *for any reason* alwayes attempt to restart it
-    # restart: unless-stoppped          # always restart unless we (the developers) forcibly stop it
+  api-service:
+    # restart: 'no'                       # never attempt to restart this container if it stops or crashes
+    # restart: on-failure                 # if this container stops with an error code will attempt to restart it
+    # restart: always                     # if this container stops *for any reason* alwayes attempt to restart it
+    # restart: unless-stoppped            # always restart unless we (the developers) forcibly stop it
     build:
       context: ./server
       dockerfile: Dockerfile.dev
     volumes: 
       - /app/node_modules
-      - ./server:/app                   # anytime we do a change in server folder it will be updated in app folder from container ... except node_modules folder
+      - ./server:/app                     # anytime we do a change in server folder it will be updated in app folder from container ... except node_modules folder
     environment: 
-      - REDIS_HOST=redis                # service name defined for redis at line 5
-      - REDIS_PORT=6379                 # default port from Redis documentation
-      - PG_USER=postgres                 # default value from docker hub postregres documentation
-      - PG_DATABASE=postgres             # default value from docker hub postregres documentation
-      - PG_PASSWORD=postgres_password    # default value from docker hub postregres documentation
-      - PG_PORT=5432                     # default value from docker hub postregres documentation
-      - PG_HOST=postgres                 # service name for postgres defined at line 3
-    # ports:
-    #   - 5000:5000
+      - REDIS_HOST=redis                  # service name defined for redis at line 5
+      - REDIS_PORT=6379                   # default port from Redis documentation
+      - PG_USER=postgres                  # default value from docker hub postgres documentation
+      - PG_DATABASE=postgres              # default value from docker hub postgres documentation
+      - PG_PASSWORD=postgres_password     # default value from docker hub postgres documentation
+      - PG_PORT=5432                      # default value from docker hub postgres documentation
+      - PG_HOST=postgres                  # service name for postgres defined at line 3
+  
+  client-service:
+    stdin_open: true
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes: 
+      - /app/node_modules                 # mark the node_modules to not be overwriten inside the container from the changes in client/node_modules
+      - ./client:/app
+  
+  worker:
+    build: 
+      context: ./worker
+      dockerfile: Dockerfile.dev
+    volumes: 
+      - /app/node_modules
+      - ./worker:/app
+
+
