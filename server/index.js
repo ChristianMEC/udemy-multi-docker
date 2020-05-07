@@ -7,26 +7,28 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser());
+app.use(bodyParser.json());
 
 // Postgress Client Setup
 const { Pool } = require('pg');
 const pgClient = new Pool({
-  user: keys.pgUser,
-  database: keys.pgDatabase,
-  password: keys.pgPassword,
-  port: keys.pgPort,
-  host: keys.pgHost
+  user: keys.PG_USER,
+  database: keys.PG_DATABASE,
+  password: keys.PG_PASSWORD,
+  port: keys.PG_PORT,
+  host: keys.PG_HOST
 });
 pgClient.on('error', () => console.log('Lost PG connection'));
 
-pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)').catch(err => console.log(err));
+pgClient
+  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .catch(err => console.log(err));
 
 // Redis Client Setup
 const redis = require('redis');
 const redisClient = redis.createClient({
-  host: keys.REDIS_HOST,
   port: keys.REDIS_PORT,
+  host: keys.REDIS_HOST,
   retry_strategy: () => 1000
 });
 const redisPublisher = redisClient.duplicate();
@@ -43,7 +45,7 @@ app.get('/values/all', async (req, res) => {
   res.send(values.rows);
 });
 
-app.get('/values/current', (req, res) => {
+app.get('/values/current', async (req, res) => {
   redisClient.hgetall('values', (err, values) => {
     res.send(values);
   });
@@ -63,6 +65,7 @@ app.post('/values', async (req, res) => {
 
   res.send({ working: true });
 });
+
 
 app.listen(5000, () => {
   console.log('Server is listening at port 5000');
