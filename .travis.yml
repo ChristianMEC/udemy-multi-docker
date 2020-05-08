@@ -1,0 +1,31 @@
+language: generic
+
+sudo: required
+
+services: 
+  - docker
+
+before_install:
+  # build development images (in this case we want to test just the client container)
+  - docker build -t christianmec/multi-docker-client-test -f ./client/Dockerfile.dev ./client
+
+script:
+  # do the tests for the containers we want - in this case just for client container
+  - docker run -e CI=true christianmec/multi-docker-client-test npm test -- --coverage
+
+after_success:
+  # Build production images
+  - docker build -t christianmec/multi-docker-client ./client
+  - docker build -t christianmec/multi-docker-nginx ./nginx
+  - docker build -t christianmec/multi-docker-server ./server
+  - docker build -t christianmec/multi-docker-worker ./worker
+  
+  # Login to the docker CLI
+  - echo "$DOCKER_PASS" | docker login -u "$DOCKER_ID" --password-stdin
+  
+  # Take those images and push them to docker hub
+  - docker push christianmec/multi-docker-client
+  - docker push christianmec/multi-docker-nginx
+  - docker push christianmec/multi-docker-server
+  - docker push christianmec/multi-docker-worker
+  
