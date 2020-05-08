@@ -29,3 +29,16 @@ after_success:
   - docker push christianmec/multi-docker-server
   - docker push christianmec/multi-docker-worker
   
+deploy:
+  # Deploy to AWS Elastic Beanstalk instance
+  region: eu-central-1
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-eu-central-1-354462428792
+  bucket_path: docker-multi
+  edge: true
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
+  on:
+    branch: master

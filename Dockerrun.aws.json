@@ -1,0 +1,39 @@
+{
+  "AWSEBDockkerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "client",
+      "image": "christianmec/multi-docker-client",
+      "hostname": "client-service",
+      "essential": false
+    },
+    {
+      "name": "server",
+      "image": "christianmec/multi-docker-server",
+      "hostname": "api-service",
+      "essential": false
+    },
+    {
+      "name": "worker",
+      "image": "christianmec/multi-docker-worker",
+      "hostname": "worker",
+      "essential": false
+    },
+    {
+      "name": "nginx",
+      "image": "christianmec/multi-docker-nginx",
+      "hostname": "nginx",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+        "client",
+        "server"
+      ]
+    }
+  ]
+}
