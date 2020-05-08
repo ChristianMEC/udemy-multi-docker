@@ -16,7 +16,7 @@ export default () => {
 
   return (
     <div>
-      {`${keys}`}
+      <div>{`${JSON.stringify(keys)}`}</div>
       <Link to="/">Go back home</Link>
     </div>
   );
