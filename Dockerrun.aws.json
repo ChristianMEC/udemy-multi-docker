@@ -5,24 +5,28 @@
       "name": "client",
       "image": "christianmec/multi-docker-client",
       "hostname": "client-service",
+      "memory": 128,
       "essential": false
     },
     {
       "name": "server",
       "image": "christianmec/multi-docker-server",
       "hostname": "api-service",
+      "memory": 128,
       "essential": false
     },
     {
       "name": "worker",
       "image": "christianmec/multi-docker-worker",
       "hostname": "worker",
+      "memory": 128,
       "essential": false
     },
     {
       "name": "nginx",
       "image": "christianmec/multi-docker-nginx",
       "hostname": "nginx",
+      "memory": 128,
       "essential": true,
       "portMappings": [
         {
